@@ -1,0 +1,55 @@
+# Read in the dataset
+polling = read.csv("dati/PollingData.csv")
+
+library("mice")
+
+# Multiple imputation
+simple = polling[c("Rasmussen", "SurveyUSA", "PropR", "DiffCount")]
+
+set.seed(144)
+
+imputed <- complete(mice(simple))
+
+polling$Rasmussen = imputed$Rasmussen
+polling$SurveyUSA = imputed$SurveyUSA
+summary(polling)
+
+Train <- subset(polling, Year == 2004 | Year == 2008)
+Test <- subset(polling, Year == 2012)
+
+# Smart Baseline
+table(Train$Republican)
+sign(20)
+sign(-10)
+sign(0)
+table(sign(Train$Rasmussen))
+table(Train$Republican, sign(Train$Rasmussen))
+
+# Multicollinearity
+cor(Train)
+str(Train)
+cor(Train[c("Rasmussen", "SurveyUSA", "PropR", "DiffCount", "Republican")])
+
+# Logistic Regression Model
+mod1 = glm(Republican~PropR, data=Train, family="binomial")
+summary(mod1)
+
+# Training set predictions
+pred1 = predict(mod1, type="response")
+table(Train$Republican, pred1 >= 0.5)
+
+# Two-variable model
+mod2 = glm(Republican~SurveyUSA+DiffCount, data=Train, family="binomial")
+pred2 = predict(mod2, type="response")
+table(Train$Republican, pred2 >= 0.5)
+summary(mod2)
+
+# Smart baseline accuracy
+table(Test$Republican, sign(Test$Rasmussen))
+
+# Test set predictions
+TestPrediction = predict(mod2, newdata=Test, type="response")
+table(Test$Republican, TestPrediction >= 0.5)
+
+# Analyze mistake
+subset(Test, TestPrediction >= 0.5 & Republican == 0)

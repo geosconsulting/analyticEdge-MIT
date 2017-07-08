@@ -1,0 +1,11 @@
+IBM <- read.csv("dati/IBMStock.csv")
+GE <- read.csv("dati/GEStock.csv")
+ProcterGamble <- read.csv("dati/ProcterGambleStock.csv")
+CocaCola <- read.csv("dati/CocaColaStock.csv")
+Boeing <- read.csv("dati/BoeingStock.csv")
+
+IBM$Date = as.Date(IBM$Date, "%m/%d/%y")
+GE$Date = as.Date(GE$Date, "%m/%d/%y")
+CocaCola$Date = as.Date(CocaCola$Date, "%m/%d/%y")
+ProcterGamble$Date = as.Date(ProcterGamble$Date, "%m/%d/%y")
+Boeing$Date = as.Date(Boeing$Date, "%m/%d/%y")
